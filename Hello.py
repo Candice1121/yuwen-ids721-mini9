@@ -1,51 +1,39 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import streamlit as st
-from streamlit.logger import get_logger
+from transformers import pipeline
 
-LOGGER = get_logger(__name__)
+# Load the language model
+model = pipeline("text-generation", model="openai-gpt")
 
-
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
-
-    st.write("# Welcome to Streamlit! 👋")
-
-    st.sidebar.success("Select a demo above.")
-
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
-
+# Define Streamlit app with enhanced aesthetics, additional content, and fancy styling
+def main():
+    # Set page title and add some styling
+    st.set_page_config(page_title="Tweet", page_icon="🤖")
+    st.title("Text Generation with Hugging Face Transformers")
+    st.markdown("This mini-app generates Text using Hugging Face Transformers. ")
+    
+    # Add text input area with placeholder
+    topic = st.text_input(label="Topic (or promopt)", placeholder="your text here")
+    
+    # Add generate button with custom styling
+    st.markdown("<style> .stButton button {background-color: #2a9d8f; color: white;}</style>", unsafe_allow_html=True)
+    st.write("")
+    if st.button("Generate", key="generate_button", help="Click to generate text"):
+        if topic:
+            # Generate text with the language model
+            generated_text = model(topic, max_length=50, do_sample=True)[0]['generated_text']
+            
+            # Display generated text with styling
+            # st.markdown("## Generated Text:")
+            header_html = f"""
+            <h1 style="color: white; text-align: center;">Generated Text</h1>
+            <div>
+                {generated_text}
+            </div>
+            """
+            st.markdown(header_html, unsafe_allow_html=True)
+        else:
+            # Display warning if no text input
+            st.warning("Please enter some text first.")
 
 if __name__ == "__main__":
-    run()
+    main()
